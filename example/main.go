@@ -17,7 +17,7 @@ func main() {
 	list := v.NewList(items)
 	list.Size = 4
 
-	i, _ := list.Prompt()
+	i, _ := list.Prompt("Select something")
 	fmt.Println(items[i])
 }
 

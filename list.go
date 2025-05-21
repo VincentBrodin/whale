@@ -9,18 +9,23 @@ type List struct {
 	Items []string
 	Size  int
 
-	start  int
-	end    int
-	window int
-	index  int
-	size   int
+	start   int
+	end     int
+	window  int
+	index   int
+	size    int
 }
 
-func (l *List) Prompt() (int, error) {
+func (l *List) Prompt(prompt string) (int, error) {
 	l.Stage.SetStyle(stage.HideCode)
 	l.size = min(l.Size, len(l.Items))
 	l.index = 0
 	l.window = 0
+
+	l.Stage.Write(prompt + "\n")
+	l.Stage.ResetStyle()
+	l.Stage.SetStyle(stage.MutedStyle)
+	l.Stage.Writef("%d/%d use ↑↓ or jk to move, ↵ to select\n", l.index+1, len(l.Items))
 
 	l.draw()
 
@@ -28,6 +33,7 @@ func (l *List) Prompt() (int, error) {
 	if err != nil {
 		return -1, err
 	}
+
 
 	l.start = finalRow - l.size
 	l.end = finalRow
@@ -73,6 +79,13 @@ func (l *List) draw() {
 		l.Stage.SetStyle(stage.ClearLineCode)
 		l.Stage.Writef("%d - %s\n", i+1+l.window, item)
 	}
+}
+
+func (l *List) update() {
+	l.Stage.MoveTo(l.start-1, 1)
+	l.Stage.ResetStyle()
+	l.Stage.SetStyle(stage.MutedStyle)
+	l.Stage.Writef("%d/%d\n", l.index+1, len(l.Items))
 }
 
 func (l *List) move(dir int) {
@@ -123,5 +136,6 @@ func (l *List) move(dir int) {
 	l.Stage.ResetStyle()
 	l.Stage.SetStyle(stage.BoldStyle)
 	l.Stage.Writef("%d - %s", l.index+1, l.Items[l.index])
+	l.update()
 	l.Stage.MoveTo(row, 1)
 }
