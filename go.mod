@@ -1,4 +1,4 @@
-module github.com/VincentBrodin/valj
+module github.com/VincentBrodin/whale
 
 go 1.24.3
 

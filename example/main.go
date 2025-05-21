@@ -3,21 +3,17 @@ package main
 import (
 	"fmt"
 
-	"github.com/VincentBrodin/valj"
+	"github.com/VincentBrodin/whale"
 )
 
 func main() {
 	items := []string {"Test", "Hello", "Cool","World","Golang", "House","Boat","Other stuff"}
 
-	v, err := valj.New()
+	list := whale.NewList(items)
+	i, err := list.Prompt("Select something")
 	if err != nil {
-		return
+		panic(err)
 	}
-
-	list := v.NewList(items)
-	list.Size = 4
-
-	i, _ := list.Prompt("Select something")
 	fmt.Println(items[i])
 }
 
