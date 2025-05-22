@@ -2,31 +2,37 @@ package whale
 
 import (
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/VincentBrodin/whale/codes"
 	"github.com/VincentBrodin/whale/screen"
 )
 
 type List struct {
-	Screen *screen.Screen // The screen
-	Items  []string       // The items
-	View   int            // The max amount of items to be shown at one time
+	Screen      *screen.Screen // The screen
+	Items       []string       // The items
+	View        int            // The max amount of items to be shown at one time
+	AllowSearch bool
 
 	RenderLine   func(index int, item string, selected bool) string // How the output line should look
 	RenderHelper func(index, size int) string                       // How the helper line should look
 
-	index    int
-	winPos   int
-	startPos int
-	endPos   int
+	index     int // The current index of items the user is on
+	winPos    int // The start of the window
+	startPos  int // The screen position of the first element
+	endPos    int // The screen position of the end of the list
+	searching bool
+	search    string
+	insertPos int
 }
 
 // Creates a new list with defualt configuration
 func NewList(items []string) *List {
 	return &List{
-		Screen: screen.New(),
-		Items:  items,
-		View:   4,
+		Screen:      screen.New(),
+		Items:       items,
+		View:        4,
+		AllowSearch: true,
 
 		RenderLine: func(index int, item string, selected bool) string {
 			if selected {
@@ -36,7 +42,7 @@ func NewList(items []string) *List {
 		},
 
 		RenderHelper: func(index, size int) string {
-			return fmt.Sprintf("%d/%d | up:↑k down:↓j  select:↵", index, size)
+			return fmt.Sprintf("%d/%d | up:↑k down:↓j select:↵ search:/", index, size)
 		},
 	}
 }
@@ -74,9 +80,17 @@ func (l *List) render(init bool) error {
 		l.Screen.SetPos(l.startPos-1, 1)
 	}
 
-	helper := l.RenderHelper(l.index+1, len(l.Items))
-	if err := l.Screen.Printf("%s%s%s%s\n",codes.Reset, codes.ClearLine, codes.Muted, helper ); err != nil {
-		return err
+	if l.searching {
+		start := string([]rune(l.search)[:l.insertPos])
+		end := string([]rune(l.search)[l.insertPos:])
+		if err := l.Screen.Printf("%s%sSearch: %s_%s\n", codes.Reset, codes.ClearLine, start, end); err != nil {
+			return err
+		}
+	} else {
+		helper := l.RenderHelper(l.index+1, len(l.Items))
+		if err := l.Screen.Printf("%s%s%s%s\n", codes.Reset, codes.ClearLine, codes.Muted, helper); err != nil {
+			return err
+		}
 	}
 
 	l.adjustWindow()
@@ -101,35 +115,17 @@ func (l *List) listen() error {
 		if err != nil {
 			return err
 		}
-
-		switch key {
-		// Exit
-		case "ctrl+c":
+		if key == "ctrl+c" { // Abort
 			return fmt.Errorf("User exited program")
-		// Scroll down
-		case "j", "arrowdown":
-			l.index++
-			if l.index >= len(l.Items) {
-				l.index = 0
-				l.winPos = 0
-			}
-			if err := l.render(false); err != nil {
-				return err
-			}
-			break
-		// Scroll up
-		case "k", "arrowup":
-			l.index--
-			if l.index < 0 {
-				l.index = len(l.Items) - 1
-				l.winPos = l.index - min(l.View, len(l.Items))
-			}
-			if err := l.render(false); err != nil {
-				return err
-			}
-			break
-		case "enter":
+		} else if key == "enter" { // Confirm
 			return nil
+		} else if l.searching { // Search
+			l.updateSearch(key)
+		} else { // Normal mode
+			l.updateMove(key)
+		}
+		if err := l.render(false); err != nil {
+			return err
 		}
 	}
 }
@@ -147,4 +143,72 @@ func (l *List) adjustWindow() {
 
 	l.winPos = max(l.winPos, 0)
 	l.winPos = min(l.winPos, len(l.Items)-1)
+}
+
+func (l *List) updateMove(key string) {
+	switch key {
+	// Scroll down
+	case "j", "arrowdown":
+		l.index++
+		if l.index >= len(l.Items) {
+			l.index = 0
+			l.winPos = 0
+		}
+		break
+	// Scroll up
+	case "k", "arrowup":
+		l.index--
+		if l.index < 0 {
+			l.index = len(l.Items) - 1
+			l.winPos = l.index - min(l.View, len(l.Items))
+		}
+		break
+	// Search
+	case "/":
+		if !l.AllowSearch {
+			break
+		}
+		l.searching = true
+		l.insertPos = 0
+		l.search = ""
+		l.index = 0
+		l.winPos = 0
+		break
+	case "esc":
+		l.searching = false
+		break
+	}
+}
+
+func (l *List) updateSearch(key string) {
+	size := utf8.RuneCountInString(l.search)
+	if key == "esc" {
+		l.searching = false
+	} else if utf8.RuneCountInString(key) == 1 {
+		r := []rune(l.search)[:l.insertPos]
+		r = append(r, []rune(key)...)
+		r = append(r, []rune(l.search)[l.insertPos:]...)
+		l.search = string(r)
+		l.insertPos++
+	} else {
+		switch key {
+		case "backspace":
+			if size >= 1 {
+				r := []rune(l.search)[:l.insertPos-1]
+				r = append(r, []rune(l.search)[l.insertPos:]...)
+				l.search = string(r) // Remove the last rune
+				l.insertPos--
+			}
+			break
+		case "arrowleft":
+			l.insertPos--
+			break
+		case "arrowright":
+			l.insertPos++
+			break
+		}
+		l.insertPos = min(l.insertPos, size)
+		l.insertPos = max(l.insertPos, 0)
+	}
+
 }

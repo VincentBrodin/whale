@@ -7,9 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/VincentBrodin/whale/codes"
-	"golang.org/x/term"
 )
 
 type Screen struct {
@@ -52,38 +52,56 @@ func (s *Screen) ReadKey() (string, error) {
 	}
 	defer restore()
 
-	buf := make([]byte, 3)
+	// Read up to 8 bytes for potential escape sequences
+	buf := make([]byte, 8)
 	n, err := s.in.Read(buf)
 	if err != nil {
 		return "", err
 	}
+	buf = buf[:n]
 
+	// Single-byte control and printable characters
 	if n == 1 {
-		if n == 1 {
-			switch buf[0] {
-			case 13:
-				return "enter", nil
-			case 3:
-				return "ctrl+c", nil
-			case 27:
-				return "esc", nil
-			default:
-				return string(buf[0]), nil
+		b := buf[0]
+		switch {
+		case b == 13:
+			return "enter", nil
+		case b == 27:
+			return "esc", nil
+		case b == 3:
+			return "ctrl+c", nil
+		case b == 8 || b == 127:
+			return "backspace", nil
+		case b >= 1 && b <= 26:
+			return fmt.Sprintf("ctrl+%c", 'a'+b-1), nil
+		}
+	} else if n == 3 { // Arrows
+		a := buf[0]
+		b := buf[1]
+		c := buf[2]
+		if a == 27 && b == 91 {
+			switch c {
+			case 65:
+				return "arrowup", nil
+			case 66:
+				return "arrowdown", nil
+
+			case 67:
+				return "arrowright", nil
+
+			case 68:
+				return "arrowleft", nil
 			}
 		}
-	} else if n == 3 && buf[0] == 27 && buf[1] == 91 {
-		switch buf[2] {
-		case 65:
-			return "uparrow", nil
-		case 66:
-			return "downarrow", nil
-		case 67:
-			return "rightarrow", nil
-		case 68:
-			return "leftarrow", nil
-		}
 	}
-	return "", fmt.Errorf("Unknown sequence: %v\n", buf[:n])
+
+	// UTF-8 multibyte rune
+	if utf8.FullRune(buf) {
+		r, _ := utf8.DecodeRune(buf)
+		return string(r), nil
+	}
+
+	return "", fmt.Errorf("unknown key sequence: %v", buf)
 }
 
 func (s *Screen) Clear() error {
@@ -130,15 +148,4 @@ func (s *Screen) GetPos() (row, col int, err error) {
 	}
 
 	return row, col, nil
-}
-
-func enableRawMode() (func() error, error) {
-	fd := int(os.Stdin.Fd())
-	oldState, err := term.MakeRaw(fd)
-	if err != nil {
-		return nil, err
-	}
-	return func() error {
-		return term.Restore(fd, oldState)
-	}, nil
 }
