@@ -87,11 +87,11 @@ func (s *Screen) ReadKey() (string, error) {
 }
 
 func (s *Screen) Clear() error {
-	return s.Print(codes.ClearCode)
+	return s.Print(codes.Clear)
 }
 
 func (s *Screen) SetPos(row, col int) error {
-	return s.Printf(codes.MoveToCode, row, col)
+	return s.Printf(codes.MoveTo, row, col)
 }
 
 // Ask for the cursor position
@@ -141,15 +141,4 @@ func enableRawMode() (func() error, error) {
 	return func() error {
 		return term.Restore(fd, oldState)
 	}, nil
-}
-
-func (s *Screen) SetCode(style string) error {
-	if err := s.ResetCode(); err != nil {
-		return err
-	}
-	return s.Print(style)
-}
-
-func (s *Screen) ResetCode() error {
-	return s.Print(codes.ResetCode)
 }

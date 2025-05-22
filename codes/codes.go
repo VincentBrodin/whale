@@ -1,30 +1,30 @@
 package codes
 
 const (
-	ResetCode      = "\033[0m"
-	BoldStyle      = "\033[1m"
-	UnderlineStyle = "\033[4m"
+	Reset     = "\033[0m"
+	Bold      = "\033[1m"
+	Underline = "\033[4m"
 
-	ErrorCode   = "\033[31m"
-	WarnCode    = "\033[33m"
-	SuccessCode = "\033[32m"
-	InfoCode    = "\033[36m"
-	HintCode    = "\033[34m"
-	MutedCode   = "\033[90m"
+	Error   = "\033[31m"
+	Warn    = "\033[33m"
+	Success = "\033[32m"
+	Info    = "\033[36m"
+	Hint    = "\033[34m"
+	Muted   = "\033[90m"
 
-	LinkCode = UnderlineStyle + InfoCode
+	Link = Underline + Info
 
-	ClearCode     = "\033[2J\033[H"
-	ClearLineCode = "\033[2K"
+	Clear     = "\033[2J\033[H"
+	ClearLine = "\033[2K"
 
-	UpCode       = "\033[%dA"
-	DownCode     = "\033[%dB"
-	RightCode    = "\033[%dC"
-	LeftCode     = "\033[%dD"
-	MoveToCode   = "\033[%d;%dH"
-	SavePosCode  = "\033[s"
-	ResetPosCode = "\033[u"
+	Up       = "\033[%dA"
+	Down     = "\033[%dB"
+	Right    = "\033[%dC"
+	Left     = "\033[%dD"
+	MoveTo   = "\033[%d;%dH"
+	SavePos  = "\033[s"
+	ResetPos = "\033[u"
 
-	HideCursorCode = "\033[?25l"
-	ShowCursorCode = "\033[?25h"
+	HideCursor = "\033[?25l"
+	ShowCursor = "\033[?25h"
 )
