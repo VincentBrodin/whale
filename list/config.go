@@ -8,23 +8,24 @@ import (
 )
 
 type Config struct {
-	Prompt string
+	Prompt string // Text displayed at the top
 
-	AllowSearch bool
-	ViewSize    int // The max amount of items to be shown at one time
+	AllowSearch bool // Enables search mode
+	ViewSize    int  // Max number of items to display at once
 
-	UpKeys     []string
-	DownKeys   []string
-	SelectKeys []string
-	SearchKeys []string
-	ExitKeys   []string
-	AbortKeys  []string
+	UpKeys     []string // Keys to move up
+	DownKeys   []string // Keys to move down
+	SelectKeys []string // Keys to confirm a choice
+	SearchKeys []string // Keys to enter search mode
+	ExitKeys   []string // Keys to exit search mode
+	AbortKeys  []string // Keys to cancel/abort the prompt
 
-	RenderItem func(item string, selected bool, config Config) string
-	RenderInfo func(index, size int, config Config) string
-	// Start is the string before the cursor and end is after the cursor
+	// Custom render logic
+	RenderItem   func(item string, selected bool, config Config) string
+	RenderInfo   func(index, size int, config Config) string
 	RenderSearch func(start, end string, config Config) string
 }
+
 
 func DefualtConfig() Config {
 	return Config{
@@ -64,12 +65,14 @@ func DefualtConfig() Config {
 				}
 			}
 
-			if _, err := keys.WriteString(" | search:"); err != nil {
-				return "error"
-			}
-			for _, key := range config.SearchKeys {
-				if _, err := keys.WriteString(keyToSymbol(key)); err != nil {
+			if config.AllowSearch {
+				if _, err := keys.WriteString(" | search:"); err != nil {
 					return "error"
+				}
+				for _, key := range config.SearchKeys {
+					if _, err := keys.WriteString(keyToSymbol(key)); err != nil {
+						return "error"
+					}
 				}
 			}
 
