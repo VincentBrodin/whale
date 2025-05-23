@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/VincentBrodin/whale"
+	"github.com/VincentBrodin/whale/list"
 )
 
 func main() {
 	items := []string{"Test","tuff", "Hello", "Cool", "World", "Golang", "House", "Boat", "Other stuff"}
 
-	list := whale.NewList(items)
-	i, err := list.Prompt("Select something")
+	list := list.New(list.DefualtConfig())
+	i, err := list.Prompt(items)
 	if err != nil {
 		panic(err)
 	}
