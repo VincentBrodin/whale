@@ -2,22 +2,27 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/VincentBrodin/valj"
+	"github.com/VincentBrodin/whale/list"
 )
 
 func main() {
-	items := []string {"Test", "Hello", "Cool","World","Golang", "House","Boat","Other stuff"}
-
-	v, err := valj.New()
-	if err != nil {
-		return
+	items := []string{
+		"Apple",
+		"Banana",
+		"Cherry",
+		"Durian",
+		"Elderberry",
+		"Fig",
+		"Grape",
+		"Honeydew",
+		"Kiwi",
+		"Lemon",
 	}
 
-	list := v.NewList(items)
-	list.Size = 4
-
-	i, _ := list.Prompt("Select something")
-	fmt.Println(items[i])
+	list := list.New(list.DefualtConfig())
+	i, err := list.Prompt(items)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("User selected %s\n", items[i])
 }
-
