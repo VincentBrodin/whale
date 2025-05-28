@@ -1,0 +1,102 @@
+package confirm
+
+import (
+	"fmt"
+	"slices"
+	"strings"
+
+	"github.com/VincentBrodin/whale/codes"
+	"github.com/VincentBrodin/whale/screen"
+	"github.com/VincentBrodin/whale/text"
+)
+
+type Confirm struct {
+	Config   Config
+	text     *text.Text
+	screen   *screen.Screen // The screen
+	startPos int            // The screen position of the first element
+}
+
+func New(config Config) *Confirm {
+	return &Confirm{
+		Config: config,
+		text:   &text.Text{},
+		screen: screen.New(),
+	}
+}
+
+func (c *Confirm) Prompt() (bool, error) {
+	defer func() {
+		_ = c.screen.Printf("%s\n", codes.ShowCursor)
+	}()
+	if err := c.screen.Print(codes.HideCursor); err != nil {
+		return false, err
+	}
+	return c.prompt()
+}
+
+func (c *Confirm) prompt() (bool, error) {
+	if err := c.screen.Printf("%s%s%s█%s", codes.Reset, renderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
+		return false, err
+	}
+
+	row, _, err := c.screen.GetPos()
+	if err != nil {
+		return false, err
+	}
+
+	c.startPos = row
+
+	for {
+		key, err := c.screen.ReadKey()
+		if err != nil {
+			return false, err
+		}
+		if slices.Contains(c.Config.AbortKeys, key) {
+			return false, fmt.Errorf("User aborted")
+		}
+		if slices.Contains(c.Config.SelectKeys, key) {
+			return c.confirm()
+		} else {
+			c.text.Update(key)
+			c.screen.SetPos(c.startPos, 1)
+			if err := c.screen.Printf("%s%s%s█%s", codes.ClearLine, renderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
+				return false, err
+			}
+		}
+	}
+}
+
+func (c *Confirm) confirm() (bool, error) {
+	value := c.text.Value
+	if !c.Config.CaseSensative {
+		value = strings.ToLower(value)
+	}
+	if value == c.Config.TrueOption {
+		return true, nil
+	} else if value == c.Config.FalseOption {
+		return false, nil
+	} else if c.Config.AllowDefuatValue {
+		return c.Config.DefualtValue, nil
+	} else {
+		if err := c.screen.Printf("%s%s\nInvalid input\n", codes.Reset, codes.Error); err != nil {
+			return false, err
+		}
+		c.text.Reset()
+		return c.prompt()
+	}
+}
+
+func renderLable(config Config) string {
+	options := ""
+	if config.AllowDefuatValue {
+		if config.DefualtValue {
+			options = fmt.Sprintf("%s[%s%s%s/%s]", codes.Reset, codes.Success, config.TrueOption, codes.Reset, config.FalseOption)
+		} else {
+			options = fmt.Sprintf("%s[%s/%s%s%s]", codes.Reset, config.TrueOption, codes.Success, config.FalseOption, codes.Reset)
+		}
+	} else {
+		options = fmt.Sprintf("%s[%s/%s]", codes.Reset, config.TrueOption, config.FalseOption)
+	}
+	return fmt.Sprintf("%s %s: ", config.Lable, options)
+}

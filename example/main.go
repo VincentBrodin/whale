@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/VincentBrodin/whale/confirm"
 	"github.com/VincentBrodin/whale/list"
 )
 
@@ -19,10 +21,17 @@ func main() {
 		"Lemon",
 	}
 
-	list := list.New(list.DefualtConfig())
-	i, err := list.Prompt(items)
+	l := list.New(list.DefualtConfig())
+	i, err := l.Prompt(items)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("User selected %s\n", items[i])
+	c := confirm.New(confirm.DefualtConfig())
+	c.Config.Lable = fmt.Sprintf("Do you want to select %s", items[i])
+	c.Config.AllowDefuatValue = false
+	res,err := c.Prompt()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
 }
