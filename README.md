@@ -20,7 +20,7 @@ Its modular, pluggable design means you can use only the components you need, wi
 Here’s why you might choose **whale**:
 
 * [x] **Intuitive API** — Minimal boilerplate with sensible defaults.
-* [x] **Lightweight & Dependency-Free** — Focused on performance and portability.
+* [x] **Non-Intrusive UI** — Doesn’t hijack the entire terminal; integrates cleanly into your existing CLI.
 * [x] **Customizable** — Full control over rendering, keybindings, and behavior.
 * [x] **Pluggable Components** — Use just the UI elements you need.
 * [x] **Fuzzy Search** — Easily enable search in lists for large or dynamic options.
