@@ -1,13 +1,39 @@
-## Whale 🐋
+## whale 🐋
 
-**Whale** is a lightweight, pluggable Terminal UI for Go.
+**whale** is a lightweight, pluggable Terminal UI for Go.
 Named after the Swedish word **“val”** (*choice* / *whale*), it helps you build interactive prompts with lists, confirmations, fuzzy search, and more—effortlessly.
+
+### Why whale
+
+**whale** is designed to make building Terminal UIs in Go both simple and powerful.
+Its modular, pluggable design means you can use only the components you need, with minimal setup and full control.
+
+Here’s why you might choose **whale**:
+
+* [x] **Intuitive API** — Minimal boilerplate with sensible defaults.
+* [x] **Lightweight & Dependency-Free** — Focused on performance and portability.
+* [x] **Customizable** — Full control over rendering, keybindings, and behavior.
+* [x] **Pluggable Components** — Use just the UI elements you need.
+* [x] **Fuzzy Search** — Easily enable search in lists for large or dynamic options.
+
+#### Currently Supported Components
 
 * [x] List
 * [x] List (Searchable)
 * [x] Confirmation
-* [ ] Text
-* [ ] Multi-choice list
+* [ ] Text * Exists as a tool, but not a full ui component (coming soon)*
+* [ ] Multi-choice list *(coming soon)*
+
+Whether you're building a CLI tool, a setup wizard, or an interactive script, **whale** helps you keep the interface user-friendly—without cluttering your codebase.
+
+> ⚠️ Note: Currently, whale is deeply tested on Unix-based systems (Linux and macOS). Full Windows support is planned and will be available soon.
+
+---
+
+## Install
+```bash
+go get github.com/VincentBrodin/whale@latest
+```
 
 ---
 
