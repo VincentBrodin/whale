@@ -3,6 +3,15 @@
 **whale** is a lightweight, pluggable Terminal UI for Go.
 Named after the Swedish word **“val”** (*choice* / *whale*), it helps you build interactive prompts with lists, confirmations, fuzzy search, and more—effortlessly.
 
+---
+
+## Install
+```bash
+go get github.com/VincentBrodin/whale@latest
+```
+
+---
+
 ### Why whale
 
 **whale** is designed to make building Terminal UIs in Go both simple and powerful.
@@ -21,19 +30,12 @@ Here’s why you might choose **whale**:
 * [x] List
 * [x] List (Searchable)
 * [x] Confirmation
-* [ ] Text * Exists as a tool, but not a full ui component (coming soon)*
+* [ ] Text *Exists as a tool, but not a full ui component (coming soon)*
 * [ ] Multi-choice list *(coming soon)*
 
 Whether you're building a CLI tool, a setup wizard, or an interactive script, **whale** helps you keep the interface user-friendly—without cluttering your codebase.
 
 > ⚠️ Note: Currently, whale is deeply tested on Unix-based systems (Linux and macOS). Full Windows support is planned and will be available soon. (This does not mean that it wont work, just that it isn't tested yet)
-
----
-
-## Install
-```bash
-go get github.com/VincentBrodin/whale@latest
-```
 
 ---
 
@@ -153,6 +155,3 @@ type Config struct {
 	RenderLable func(config Config) string
 }
 ```
-<!-- <p align="center"> -->
-<!--   <img src="https://github.com/VincentBrodin/whale/assets/demo/list.gif" width="600" alt="Whale List Demo"> -->
-<!-- </p> -->
