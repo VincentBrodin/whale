@@ -189,3 +189,9 @@ func (l *List) search() {
 		return result[l.results[i]] > result[l.results[j]]
 	})
 }
+
+func (l *List) Reset() {
+	l.text.Reset()
+	l.index = 0
+	l.winPos = 0
+}

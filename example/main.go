@@ -22,16 +22,28 @@ func main() {
 	}
 
 	l := list.New(list.DefualtConfig())
-	i, err := l.Prompt(items)
-	if err != nil {
-		panic(err)
-	}
+
 	c := confirm.New(confirm.DefualtConfig())
-	c.Config.Lable = fmt.Sprintf("Do you want to select %s", items[i])
-	c.Config.AllowDefuatValue = false
-	res,err := c.Prompt()
-	if err != nil {
-		panic(err)
+	// c.Config.AllowDefuatValue = false
+	// c.Config.DefualtValue = false
+
+	for {
+		l.Reset()
+		c.Reset()
+
+		i, err := l.Prompt(items)
+		if err != nil {
+			panic(err)
+		}
+
+		c.Config.Lable = fmt.Sprintf("Do you want to select %s", items[i])
+		res, err := c.Prompt()
+		if err != nil {
+			panic(err)
+		}
+
+		if res {
+			break
+		}
 	}
-	fmt.Println(res)
 }

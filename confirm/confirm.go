@@ -36,7 +36,7 @@ func (c *Confirm) Prompt() (bool, error) {
 }
 
 func (c *Confirm) prompt() (bool, error) {
-	if err := c.screen.Printf("%s%s%s█%s", codes.Reset, renderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
+	if err := c.screen.Printf("%s%s%s█%s", codes.Reset, c.Config.RenderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
 		return false, err
 	}
 
@@ -60,7 +60,7 @@ func (c *Confirm) prompt() (bool, error) {
 		} else {
 			c.text.Update(key)
 			c.screen.SetPos(c.startPos, 1)
-			if err := c.screen.Printf("%s%s%s█%s", codes.ClearLine, renderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
+			if err := c.screen.Printf("%s%s%s█%s", codes.ClearLine, c.Config.RenderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
 				return false, err
 			}
 		}
@@ -87,16 +87,6 @@ func (c *Confirm) confirm() (bool, error) {
 	}
 }
 
-func renderLable(config Config) string {
-	options := ""
-	if config.AllowDefuatValue {
-		if config.DefualtValue {
-			options = fmt.Sprintf("%s[%s%s%s/%s]", codes.Reset, codes.Success, config.TrueOption, codes.Reset, config.FalseOption)
-		} else {
-			options = fmt.Sprintf("%s[%s/%s%s%s]", codes.Reset, config.TrueOption, codes.Success, config.FalseOption, codes.Reset)
-		}
-	} else {
-		options = fmt.Sprintf("%s[%s/%s]", codes.Reset, config.TrueOption, config.FalseOption)
-	}
-	return fmt.Sprintf("%s %s: ", config.Lable, options)
+func (c *Confirm) Reset() {
+	c.text.Reset()
 }
