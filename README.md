@@ -26,7 +26,7 @@ Here’s why you might choose **whale**:
 
 Whether you're building a CLI tool, a setup wizard, or an interactive script, **whale** helps you keep the interface user-friendly—without cluttering your codebase.
 
-> ⚠️ Note: Currently, whale is deeply tested on Unix-based systems (Linux and macOS). Full Windows support is planned and will be available soon.
+> ⚠️ Note: Currently, whale is deeply tested on Unix-based systems (Linux and macOS). Full Windows support is planned and will be available soon. (This does not mean that it wont work, just that it isn't tested yet)
 
 ---
 
