@@ -45,6 +45,8 @@ Whether you're building a CLI tool, a setup wizard, or an interactive script, **
 
 The `List` component allows users to scroll through a list of choices and select one. It also supports optional fuzzy searching and full keybinding configuration.
 
+![List](./assets/list_s.gif)
+
 #### Basic Usage
 
 ```go
@@ -109,6 +111,8 @@ or defining your own keyboard controls.
 ### Confirm
 
 The `Confirm` component prompts users to answer between 2 choices [y/n].
+
+![Confirm](./assets/confirm_s.gif)
 
 #### Basic Usage
 ```go

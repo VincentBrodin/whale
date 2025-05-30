@@ -4,39 +4,39 @@ import (
 	"fmt"
 
 	"github.com/VincentBrodin/whale/confirm"
-	"github.com/VincentBrodin/whale/list"
+	// "github.com/VincentBrodin/whale/list"
 )
 
 func main() {
-	items := []string{
-		"Apple",
-		"Banana",
-		"Cherry",
-		"Durian",
-		"Elderberry",
-		"Fig",
-		"Grape",
-		"Honeydew",
-		"Kiwi",
-		"Lemon",
-	}
+	// items := []string{
+	// 	"Apple",
+	// 	"Banana",
+	// 	"Cherry",
+	// 	"Durian",
+	// 	"Elderberry",
+	// 	"Fig",
+	// 	"Grape",
+	// 	"Honeydew",
+	// 	"Kiwi",
+	// 	"Lemon",
+	// }
 
-	l := list.New(list.DefualtConfig())
+	// l := list.New(list.DefualtConfig())
 
 	c := confirm.New(confirm.DefualtConfig())
 	// c.Config.AllowDefuatValue = false
 	// c.Config.DefualtValue = false
 
 	for {
-		l.Reset()
+		// l.Reset()
 		c.Reset()
 
-		i, err := l.Prompt(items)
-		if err != nil {
-			panic(err)
-		}
+		// i, err := l.Prompt(items)
+		// if err != nil {
+		// 	panic(err)
+		// }
 
-		c.Config.Lable = fmt.Sprintf("Do you want to select %s", items[i])
+		c.Config.Lable = fmt.Sprintf("Are you sure?")
 		res, err := c.Prompt()
 		if err != nil {
 			panic(err)
