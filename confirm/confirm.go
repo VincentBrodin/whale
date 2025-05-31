@@ -27,25 +27,30 @@ func New(config Config) *Confirm {
 
 func (c *Confirm) Prompt() (bool, error) {
 	defer func() {
-		_ = c.screen.Printf("%s\n", codes.ShowCursor)
+		// Moves the users cursor to the end of the screen
+		_ = c.screen.Print("\n")
 	}()
-	if err := c.screen.Print(codes.HideCursor); err != nil {
-		return false, err
-	}
 	return c.prompt()
 }
 
 func (c *Confirm) prompt() (bool, error) {
-	if err := c.screen.Printf("%s%s%s█%s", codes.Reset, c.Config.RenderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
+	if err := c.screen.Printf("%s%s%s%s", codes.Reset, c.Config.RenderLable(c.Config), codes.Reset, c.text.Start()); err != nil {
 		return false, err
 	}
 
-	row, _, err := c.screen.GetPos()
+	row, col, err := c.screen.GetPos()
 	if err != nil {
 		return false, err
 	}
-
 	c.startPos = row
+
+	if err := c.screen.Printf("%s%s", codes.Reset, c.text.End()); err != nil {
+		return false, err
+	}
+
+	if err := c.screen.SetPos(row, col); err != nil {
+		return false, err
+	}
 
 	for {
 		key, err := c.screen.ReadKey()
@@ -60,7 +65,20 @@ func (c *Confirm) prompt() (bool, error) {
 		} else {
 			c.text.Update(key)
 			c.screen.SetPos(c.startPos, 1)
-			if err := c.screen.Printf("%s%s%s█%s", codes.ClearLine, c.Config.RenderLable(c.Config), c.text.Start(), c.text.End()); err != nil {
+			if err := c.screen.Printf("%s%s%s%s%s", codes.ClearLine, codes.Reset, c.Config.RenderLable(c.Config), codes.Reset, c.text.Start()); err != nil {
+				return false, err
+			}
+
+			row, col, err := c.screen.GetPos()
+			if err != nil {
+				return false, err
+			}
+
+			if err := c.screen.Printf("%s%s", codes.Reset, c.text.End()); err != nil {
+				return false, err
+			}
+
+			if err := c.screen.SetPos(row, col); err != nil {
 				return false, err
 			}
 		}

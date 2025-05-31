@@ -21,8 +21,8 @@ type List struct {
 	startPos int // The screen position of the first element
 	endPos   int // The screen position of the end of the list
 
-	searching bool   // True if we are in search mode
-	results   []int  // Maps the Items positions to there screen position
+	searching bool  // True if we are in search mode
+	results   []int // Maps the Items positions to there screen position
 
 	screen  *screen.Screen   // The screen
 	matcher *matcher.Matcher // The fuzzy matcher, look at github.com/VincentBrodin/suddig for examples of how to customize it
@@ -47,7 +47,14 @@ func (l *List) Prompt(items []string) (int, error) {
 	}
 
 	defer func() {
-		_ = l.screen.Print(codes.ShowCursor) // We just show the cursor, we dont care if it fails
+		// We just show the cursor, we dont care if it fails
+		if err := l.screen.Print(codes.ShowCursor); err != nil {
+			return
+		}
+		// This makes sure that the users cursor will always be at the end of the list when we exit
+		if err := l.screen.SetPos(l.endPos, 1); err != nil {
+			return
+		}
 	}()
 
 	if err := l.screen.Printf("%s%s\n", codes.HideCursor, l.Config.Lable); err != nil {
@@ -84,12 +91,33 @@ func (l *List) render(init bool) error {
 		l.screen.SetPos(l.startPos-1, 1)
 	}
 
+	cRow, cCol := 0, 0
+
 	if l.searching {
-		search := l.Config.RenderSearch(l.text.Start(), l.text.End(), l.Config)
-		if err := l.screen.Printf("%s%s%s\n", codes.Reset, codes.ClearLine, search); err != nil {
+		if err := l.screen.Printf("%s", codes.ShowCursor); err != nil {
 			return err
 		}
+		prefix := l.Config.RenderSearchPrefix(l.Config)
+		if err := l.screen.Printf("%s%s%s%s%s", codes.Reset, codes.ClearLine, prefix, codes.Reset, l.text.Start()); err != nil {
+			return err
+		}
+
+		row, col, err := l.screen.GetPos()
+		if err != nil {
+			return err
+		}
+		cRow = row
+		cCol = col
+
+		suffix := l.Config.RenderSearchSuffix(l.Config)
+		if err := l.screen.Printf("%s%s%s\n", codes.Reset, l.text.End(), suffix); err != nil {
+			return err
+		}
+
 	} else {
+		if err := l.screen.Printf("%s", codes.HideCursor); err != nil {
+			return err
+		}
 		helper := l.Config.RenderInfo(l.index+1, len(l.Items), l.Config)
 		if err := l.screen.Printf("%s%s%s\n", codes.Reset, codes.ClearLine, helper); err != nil {
 			return err
@@ -104,6 +132,12 @@ func (l *List) render(init bool) error {
 		i := _i + l.winPos // Get the real index
 		line := l.Config.RenderItem(l.Items[l.results[i]], l.index == i, l.Config)
 		if err := l.screen.Printf("%s%s%s\n", codes.Reset, codes.ClearLine, line); err != nil {
+			return err
+		}
+	}
+
+	if l.searching {
+		if err := l.screen.SetPos(cRow, cCol); err != nil {
 			return err
 		}
 	}

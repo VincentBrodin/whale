@@ -21,9 +21,10 @@ type Config struct {
 	AbortKeys      []string // Keys to cancel/abort the prompt
 
 	// Custom render logic
-	RenderItem   func(item string, selected bool, config Config) string
-	RenderInfo   func(index, size int, config Config) string
-	RenderSearch func(start, end string, config Config) string
+	RenderItem         func(item string, selected bool, config Config) string
+	RenderInfo         func(index, size int, config Config) string
+	RenderSearchPrefix func(config Config) string // This is the logic for the text that goes before the search input
+	RenderSearchSuffix func(config Config) string // And this is the text after
 }
 
 func DefualtConfig() Config {
@@ -86,7 +87,10 @@ func DefualtConfig() Config {
 
 			return fmt.Sprintf("%s%d/%d | %s |", codes.Muted, index, size, keys.String())
 		},
-		RenderSearch: func(start, end string, config Config) string {
+		RenderSearchPrefix: func(config Config) string {
+			return fmt.Sprintf("%s%sSearch:", codes.Reset, codes.Muted)
+		},
+		RenderSearchSuffix: func(config Config) string {
 			keys := strings.Builder{}
 			if _, err := keys.WriteString("exit: "); err != nil {
 				return "error"
@@ -97,7 +101,7 @@ func DefualtConfig() Config {
 				}
 			}
 
-			return fmt.Sprintf("%sSearch:%s%s█%s%s | %s |", codes.Muted, codes.Reset, start, end, codes.Muted, keys.String())
+			return fmt.Sprintf("%s%s | %s |", codes.Reset, codes.Muted, keys.String())
 		},
 	}
 }
