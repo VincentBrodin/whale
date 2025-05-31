@@ -2,27 +2,37 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/VincentBrodin/whale/list"
 )
 
 func main() {
-	items := []string{
-		"Apple",
-		"Banana",
-		"Cherry",
-		"Durian",
-		"Elderberry",
-		"Fig",
-		"Grape",
-		"Honeydew",
-		"Kiwi",
-		"Lemon",
+	examples := []string{
+		"List",
+		"Searchable List",
+		"Confirm",
 	}
 
-	list := list.New(list.DefualtConfig())
-	i, err := list.Prompt(items)
+	l := list.New(list.DefualtConfig())
+	l.Config.Lable = "Select example"
+	res, err := l.Prompt(examples)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("User selected %s\n", items[i])
+
+	fmt.Printf("Starting %s\n", examples[res])
+
+	switch res {
+	case 0:
+		exampleList()
+		break
+	case 1:
+		exampleListSearch()
+		break
+	case 2:
+		exampleConfirm()
+		break
+	default:
+		break
+	}
 }

@@ -8,37 +8,37 @@ import (
 )
 
 type Config struct {
-	Prompt string // Text displayed at the top
+	Lable string // Text displayed at the top
 
 	AllowSearch bool // Enables search mode
 	ViewSize    int  // Max number of items to display at once
 
-	UpKeys     []string // Keys to move up
-	DownKeys   []string // Keys to move down
-	SelectKeys []string // Keys to confirm a choice
-	SearchKeys []string // Keys to enter search mode
-	ExitKeys   []string // Keys to exit search mode
-	AbortKeys  []string // Keys to cancel/abort the prompt
+	UpKeys         []string // Keys to move up
+	DownKeys       []string // Keys to move down
+	SelectKeys     []string // Keys to confirm a choice
+	SearchKeys     []string // Keys to enter search mode
+	ExitSearchKeys []string // Keys to exit search mode
+	AbortKeys      []string // Keys to cancel/abort the prompt
 
 	// Custom render logic
-	RenderItem   func(item string, selected bool, config Config) string
-	RenderInfo   func(index, size int, config Config) string
-	RenderSearch func(start, end string, config Config) string
+	RenderItem         func(item string, selected bool, config Config) string
+	RenderInfo         func(index, size int, config Config) string
+	RenderSearchPrefix func(config Config) string // This is the logic for the text that goes before the search input
+	RenderSearchSuffix func(config Config) string // And this is the text after
 }
-
 
 func DefualtConfig() Config {
 	return Config{
-		Prompt:      "Select option",
+		Lable:       "Select option",
 		AllowSearch: true,
 		ViewSize:    4,
 
-		UpKeys:     []string{"arrowup", "k"},
-		DownKeys:   []string{"arrowdown", "j"},
-		SelectKeys: []string{"enter"},
-		SearchKeys: []string{"/"},
-		ExitKeys:   []string{"esc"},
-		AbortKeys:  []string{"ctrl+c"},
+		UpKeys:         []string{"arrowup", "k"},
+		DownKeys:       []string{"arrowdown", "j"},
+		SelectKeys:     []string{"enter"},
+		SearchKeys:     []string{"/"},
+		ExitSearchKeys: []string{"esc"},
+		AbortKeys:      []string{"ctrl+c"},
 
 		RenderItem: func(item string, selected bool, config Config) string {
 			if selected {
@@ -87,18 +87,21 @@ func DefualtConfig() Config {
 
 			return fmt.Sprintf("%s%d/%d | %s |", codes.Muted, index, size, keys.String())
 		},
-		RenderSearch: func(start, end string, config Config) string {
+		RenderSearchPrefix: func(config Config) string {
+			return fmt.Sprintf("%s%sSearch:", codes.Reset, codes.Muted)
+		},
+		RenderSearchSuffix: func(config Config) string {
 			keys := strings.Builder{}
 			if _, err := keys.WriteString("exit: "); err != nil {
 				return "error"
 			}
-			for _, key := range config.ExitKeys {
+			for _, key := range config.ExitSearchKeys {
 				if _, err := keys.WriteString(keyToSymbol(key)); err != nil {
 					return "error"
 				}
 			}
 
-			return fmt.Sprintf("%sSearch:%s%s█%s%s | %s |", codes.Muted, codes.Reset, start, end, codes.Muted, keys.String())
+			return fmt.Sprintf("%s%s | %s |", codes.Reset, codes.Muted, keys.String())
 		},
 	}
 }
