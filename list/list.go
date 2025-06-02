@@ -104,12 +104,10 @@ func (l *List) render(init bool) error {
 
 		row, col, err := l.screen.GetPos()
 		if err != nil {
-			cRow = l.endPos 
-			cCol = 1
-		} else {
-			cRow = row
-			cCol = col
+			return err
 		}
+		cRow = row
+		cCol = col
 
 		suffix := l.Config.RenderSearchSuffix(l.Config)
 		if err := l.screen.Printf("%s%s%s\n", codes.Reset, l.text.End(), suffix); err != nil {
