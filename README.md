@@ -30,7 +30,7 @@ Here’s why you might choose **whale**:
 * [x] List
 * [x] List (Searchable)
 * [x] Confirmation
-* [ ] Text *Exists as a tool, but not a full ui component (coming soon)*
+* [ ] Text box *(coming soon)*
 * [ ] Multi-choice list *(coming soon)*
 
 Whether you're building a CLI tool, a setup wizard, or an interactive script, **whale** helps you keep the interface user-friendly—without cluttering your codebase.
