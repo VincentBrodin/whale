@@ -9,6 +9,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"golang.org/x/term"
+
 	"github.com/VincentBrodin/whale/codes"
 )
 
@@ -113,22 +115,43 @@ func (s *Screen) SetPos(row, col int) error {
 }
 
 // Ask for the cursor position
-func (s *Screen) GetPos() (row, col int, err error) {
-	restore, err := enableRawMode()
+func (s *Screen) GetPos() (int, int, error) {
+	// Put terminal into raw mode
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {
 		return 0, 0, err
 	}
-	defer restore()
+	defer term.Restore(int(os.Stdin.Fd()), oldState)
 
+	// Send the cursor position request
 	if err := s.Print("\033[6n"); err != nil {
 		return 0, 0, err
 	}
+	// Flush stdout to ensure the sequence is sent immediately
+	os.Stdout.Sync()
 
-	res, err := s.reader.ReadString('R')
-	if err != nil {
-		return 0, 0, err
+	var response strings.Builder
+
+	// Read until 'R' is encountered
+	for {
+		ch, err := s.reader.ReadByte()
+		if err != nil {
+			return 0, 0, err
+		}
+		response.WriteByte(ch)
+		if ch == 'R' {
+			break
+		}
 	}
 
+	res := response.String()
+
+	// Parse the response: ESC [ rows ; cols R
+	if !strings.HasPrefix(res, "\033[") || !strings.HasSuffix(res, "R") {
+		return 0, 0, fmt.Errorf("unexpected response format: %q", res)
+	}
+
+	// Trim the ESC[ prefix and R suffix
 	res = strings.TrimPrefix(res, "\033[")
 	res = strings.TrimSuffix(res, "R")
 
@@ -137,12 +160,12 @@ func (s *Screen) GetPos() (row, col int, err error) {
 		return 0, 0, fmt.Errorf("unexpected cursor position response: %q", res)
 	}
 
-	row, err = strconv.Atoi(parts[0])
+	row, err := strconv.Atoi(parts[0])
 	if err != nil {
 		return 0, 0, err
 	}
 
-	col, err = strconv.Atoi(parts[1])
+	col, err := strconv.Atoi(parts[1])
 	if err != nil {
 		return 0, 0, err
 	}
