@@ -130,7 +130,7 @@ func (l *List) render(init bool) error {
 	size := min(l.Config.ViewSize, len(l.Items))
 	for _i := range l.Items[l.winPos : l.winPos+size] {
 		i := _i + l.winPos // Get the real index
-		line := l.Config.RenderItem(l.Items[l.results[i]], l.index == i, l.Config)
+		line := l.Config.RenderItem(l.results[i], l.Items[l.results[i]], l.index == i, l.Config)
 		if err := l.screen.Printf("%s%s%s\n", codes.Reset, codes.ClearLine, line); err != nil {
 			return err
 		}

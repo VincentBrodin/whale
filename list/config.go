@@ -21,7 +21,7 @@ type Config struct {
 	AbortKeys      []string // Keys to cancel/abort the prompt
 
 	// Custom render logic
-	RenderItem         func(item string, selected bool, config Config) string
+	RenderItem         func(index int, item string, selected bool, config Config) string
 	RenderInfo         func(index, size int, config Config) string
 	RenderSearchPrefix func(config Config) string // This is the logic for the text that goes before the search input
 	RenderSearchSuffix func(config Config) string // And this is the text after
@@ -40,7 +40,7 @@ func DefualtConfig() Config {
 		ExitSearchKeys: []string{"esc"},
 		AbortKeys:      []string{"ctrl+c"},
 
-		RenderItem: func(item string, selected bool, config Config) string {
+		RenderItem: func(index int,item string, selected bool, config Config) string {
 			if selected {
 				return fmt.Sprintf("  > %s", item)
 			}
