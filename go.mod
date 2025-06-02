@@ -3,7 +3,7 @@ module github.com/VincentBrodin/whale
 go 1.24.3
 
 require (
-	github.com/VincentBrodin/suddig v1.0.2
+	github.com/VincentBrodin/suddig v1.0.3
 	golang.org/x/term v0.32.0
 )
 
